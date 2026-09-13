@@ -1,0 +1,13 @@
+.git
+.vs
+
+**/bin
+**/obj
+
+*.user
+*.suo
+
+.env
+.env.*
+
+README.md
