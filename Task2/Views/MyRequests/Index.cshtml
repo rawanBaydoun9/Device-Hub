@@ -1,0 +1,163 @@
+﻿@{
+    ViewData["Title"] = "My Requests";
+}
+
+<div ng-app="devicesApp" ng-controller="MyRequestsController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">My Activity</span>
+                <h1 class="page-title">My Requests</h1>
+
+                <p class="cart-subtitle">
+                    Track your submitted device requests and their current status.
+                </p>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-box">
+                    <i class="fa-solid fa-filter filter-icon"></i>
+
+                    <select class="stock-filter"
+                            ng-model="statusFilter"
+                            ng-change="loadMyRequests()">
+                        <option value="">All Requests</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="requests-list">
+
+                <div class="request-card" ng-repeat="request in requests">
+
+                    <div class="request-card-header">
+                        <div>
+                            <h3>Request #{{ request.id }}</h3>
+
+                            <p>
+                                {{ request.items.length }} item(s) requested
+                            </p>
+                        </div>
+
+                        <span class="request-status"
+                              ng-class="{
+                                'status-pending': request.status === 'Pending',
+                                'status-accepted': request.status === 'Accepted',
+                                'status-rejected': request.status === 'Rejected'
+                              }">
+                            {{ request.status }}
+                        </span>
+                    </div>
+
+                    <div class="request-date">
+                        <i class="fa-regular fa-clock"></i>
+                        {{ request.requestedAt | date:'medium' }}
+                    </div>
+
+                    <div class="request-items-table">
+                        <table class="table devices-table">
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr ng-repeat="item in request.items">
+                                    <td class="device-name">
+                                        {{ item.deviceName }}
+                                    </td>
+
+                                    <td>
+                                        <span class="category-badge">
+                                            {{ item.categoryName || 'No Category' }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ item.quantity }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="user-request-message"
+                         ng-if="request.status === 'Pending'">
+                        <i class="fa-solid fa-clock"></i>
+                        Your request is waiting for admin review.
+                    </div>
+
+                    <div class="user-request-message accepted"
+                         ng-if="request.status === 'Accepted'">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Your request has been accepted.
+                    </div>
+
+                    <div class="user-request-message rejected"
+                         ng-if="request.status === 'Rejected'">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        Your request has been rejected.
+                    </div>
+
+                </div>
+
+                <div class="cart-empty-state" ng-if="requests && requests.length === 0">
+                    <div class="cart-empty-icon">
+                        <i class="fa-solid fa-file-circle-question"></i>
+                    </div>
+
+                    <h3>No requests yet</h3>
+
+                    <p>
+                        Browse available devices and submit your first request.
+                    </p>
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="cart-submit-btn cart-empty-link">
+                        Browse Devices
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

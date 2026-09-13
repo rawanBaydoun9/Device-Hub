@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div ng-app="devicesApp" ng-controller="UserHomeController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card user-shop-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">Device Shop</span>
+                <h1 class="page-title">Available Devices</h1>
+                <p class="user-shop-subtitle">
+                    Browse the devices displayed by the admin.
+                </p>
+            </div>
+
+            <div class="user-shop-grid">
+
+                <div class="user-device-card" ng-repeat="device in devices">
+
+                    <div class="user-device-top">
+                        <div class="user-device-icon">
+                            <i class="fa-solid fa-laptop"></i>
+                        </div>
+
+                        <span class="user-device-stock"
+                              ng-class="{ 'low-stock': device.quantity <= 5 }">
+                            {{ device.quantity }} available
+                        </span>
+                    </div>
+
+                    <div class="user-device-content">
+                        <h3>{{ device.name }}</h3>
+
+                        <span class="category-badge">
+                            {{ device.categoryName || 'No Category' }}
+                        </span>
+
+                        <p>
+                            Add this device to your cart and continue your request.
+                        </p>
+                    </div>
+
+                    <button type="button"
+                            class="user-add-cart-btn"
+                            ng-click="addToCart(device)">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        Add to Cart
+                    </button>
+
+                </div>
+
+                <div class="empty-state user-shop-empty"
+                     ng-if="devices && devices.length === 0">
+                    No devices are available now.
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

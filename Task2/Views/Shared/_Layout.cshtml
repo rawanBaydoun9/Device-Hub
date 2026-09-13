@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Device Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap 3 CSS because UI-Bootstrap 0.14.3 works with Bootstrap 3 style -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<body>
+
+    <nav class="navbar navbar-default navbar-fixed-top custom-navbar">
+        <div class="container">
+
+            <div class="navbar-header">
+                <button type="button"
+                        class="navbar-toggle collapsed"
+                        data-toggle="collapse"
+                        data-target="#deviceHubNavbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    Device Hub
+                </a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="deviceHubNavbar">
+
+                <ul class="nav navbar-nav">
+
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        if (User.IsInRole("Admin"))
+                        {
+                            <li><a asp-controller="Home" asp-action="Index">Devices</a></li>
+                            <li><a asp-controller="Categories" asp-action="Index">Categories</a></li>
+                            <li><a asp-controller="Clients" asp-action="Index">Clients</a></li>
+                            <li><a asp-controller="PhoneNumbers" asp-action="Index">Phone Numbers</a></li>
+                            <li><a asp-controller="Requests" asp-action="Index">Requests</a></li>
+                            <li><a asp-controller="Users" asp-action="Index">Users</a></li>
+                            <li><a asp-controller="Reports" asp-action="Index">Reports</a></li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a asp-controller="Home" asp-action="Index">
+                                    <i class="fa-solid fa-house"></i>
+                                    Home
+                                </a>
+                            </li>
+                        }
+                    }
+
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right auth-navbar">
+                    <partial name="_LoginPartial" />
+                </ul>
+
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Logout Confirm Modal -->
+    <div class="modal fade" id="logoutConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog logout-modal-dialog" role="document">
+            <div class="modal-content logout-modal-content">
+
+                <div class="delete-modal logout-modal-card">
+
+                    <div class="delete-icon logout-confirm-icon">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+
+                    <h3 class="delete-title">Logout?</h3>
+
+                    <p class="delete-message">
+                        Are you sure you want to logout from Device Hub?
+                    </p>
+
+                    <p class="delete-warning">
+                        You will need to login again to access the system.
+                    </p>
+
+                    <div class="delete-actions">
+
+                        <button type="button"
+                                class="btn delete-cancel-btn"
+                                data-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <form asp-area="Identity"
+                              asp-page="/Account/Logout"
+                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                              method="post"
+                              class="logout-modal-form">
+
+                            <button type="submit"
+                                    class="btn delete-confirm-btn">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Logout
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- jQuery needed for Bootstrap 3 navbar collapse -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+
+    <!-- Bootstrap 3 JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- AngularJS 1.4.8 -->
+    <script src="https://code.angularjs.org/1.4.8/angular.min.js"></script>
+
+    <!-- UI-Bootstrap 0.14.3 -->
+    <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.14.3.min.js"></script>
+
+    <!-- Our AngularJS code -->
+    <script src="~/js/devicesApp.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

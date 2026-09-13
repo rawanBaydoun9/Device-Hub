@@ -1,0 +1,367 @@
+﻿<div ng-app="devicesApp" ng-controller="DevicesController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">Device Manager</span>
+                <h1 class="page-title">Devices</h1>
+            </div>
+
+            <!-- Search + Filters -->
+            <div class="filter-search-area">
+
+                <div class="search-box">
+                    <div class="input-group custom-input-group">
+                        <input type="text"
+                               class="form-control device-input"
+                               placeholder="Search device name..."
+                               ng-model="searchText" />
+
+                        <span class="input-group-btn">
+                            <button type="button"
+                                    class="btn btn-main"
+                                    ng-click="searchDevices()"
+                                    title="Search">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </span>
+
+                        <button type="button"
+                                class="btn btn-main btn-add"
+                                ng-click="openDeviceModal()"
+                                title="Add Device">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+
+                <div class="filter-row">
+
+                    <!-- Sort -->
+                    <div class="sort-filter-group">
+
+                        <div class="filter-box">
+                            <i class="fa-solid fa-arrow-down-wide-short filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="sortColumn"
+                                    ng-change="changeSort()">
+                                <option value="id">Sort by ID</option>
+                                <option value="name">Sort by Name</option>
+                                <option value="category">Sort by Category</option>
+                                <option value="quantity">Sort by Quantity</option>
+                            </select>
+                        </div>
+
+                        <button type="button"
+                                class="sort-direction-btn"
+                                ng-click="toggleSortDirection()"
+                                title="Change sort direction">
+                            <i class="fa-solid"
+                               ng-class="sortDirection === 'asc' ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-wide-short'">
+                            </i>
+                        </button>
+
+                    </div>
+
+                    <!-- Availability Filter -->
+                    <div class="filter-box">
+                        <i class="fa-solid fa-filter filter-icon"></i>
+
+                        <select class="stock-filter"
+                                ng-model="stockFilter"
+                                ng-change="searchDevices()">
+                            <option value="all">All Devices</option>
+                            <option value="inStock">In Stock</option>
+                            <option value="outOfStock">Out of Stock</option>
+                            <option value="lowStock">Low Stock</option>
+                        </select>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="filter-box">
+                        <i class="fa-solid fa-layer-group filter-icon"></i>
+
+                        <select class="stock-filter"
+                                ng-model="categoryFilter"
+                                ng-options="category.id as category.name for category in categories"
+                                ng-change="searchDevices()">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Devices Table -->
+            <div class="table-responsive">
+                <table class="table devices-table">
+                    <thead>
+                        <tr>
+                            <th class="id-col">ID</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th class="user-home-col">User Home</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="device in devices">
+                            <td>{{ device.id }}</td>
+
+                            <td class="device-name">
+                                {{ device.name }}
+                            </td>
+
+                            <td>
+                                <span class="category-badge">
+                                    {{ device.categoryName || 'No Category' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="quantity-control">
+                                    <button type="button"
+                                            class="qty-btn"
+                                            ng-click="decreaseQuantity(device)"
+                                            ng-disabled="device.quantity <= 0">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </button>
+
+                                    <input type="number"
+                                           class="qty-input"
+                                           min="0"
+                                           ng-model="device.quantity"
+                                           ng-model-options="{ debounce: 600 }"
+                                           ng-change="manualQuantityChange(device)" />
+
+                                    <button type="button"
+                                            class="qty-btn"
+                                            ng-click="increaseQuantity(device)">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        class="action-btn visibility-btn"
+                                        ng-click="toggleUserHomeVisibility(device)"
+                                        title="{{ device.showOnUserHome ? 'Hide from user homepage' : 'Show on user homepage' }}">
+
+                                    <i class="fa-solid"
+                                       ng-class="device.showOnUserHome ? 'fa-eye' : 'fa-eye-slash'">
+                                    </i>
+                                </button>
+                            </td>
+
+                            <td>
+                                <div class="action-group">
+                                    <button type="button"
+                                            class="action-btn edit-btn"
+                                            ng-click="openDeviceModal(device)"
+                                            title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            class="action-btn delete-btn"
+                                            ng-click="deleteDevice(device)"
+                                            title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-if="devices && devices.length === 0">
+                            <td colspan="6" class="empty-state">
+                                No devices found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper" ng-if="totalPages > 1">
+
+                <div class="pagination-controls">
+
+                    <button type="button"
+                            class="page-btn"
+                            ng-click="previousPage()"
+                            ng-disabled="currentPage === 1">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+                    <button type="button"
+                            class="page-btn"
+                            ng-repeat="page in getPageNumbers()"
+                            ng-click="goToPage(page)"
+                            ng-class="{ 'active-page': page === currentPage }">
+                        {{ page }}
+                    </button>
+
+                    <button type="button"
+                            class="page-btn"
+                            ng-click="nextPage()"
+                            ng-disabled="currentPage === totalPages">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Add/Edit Device Modal -->
+    <script type="text/ng-template" id="deviceModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+             <div class="modal-error" ng-if="errorMessage">
+                 <i class="fa-solid fa-circle-exclamation"></i>
+                 {{ errorMessage }}
+             </div>
+
+            <div class="form-group">
+                <label class="modal-label">Device Name</label>
+
+                <input type="text"
+                       class="form-control modal-input"
+                       ng-model="device.name"
+                       maxlength="50"
+                       placeholder="Enter device name" />
+
+                <small class="input-hint">
+                    Maximum 50 characters.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Quantity</label>
+
+                <input type="number"
+                       class="form-control modal-input"
+                       ng-model="device.quantity"
+                       min="0"
+                       placeholder="Enter quantity" />
+
+                <small class="input-hint">
+                    Quantity must be 0 or greater.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Category</label>
+
+                <select class="form-control modal-input"
+                        ng-model="device.categoryId"
+                        ng-options="category.id as category.name for category in categories">
+                    <option value="">Select category</option>
+                </select>
+
+                <small class="input-hint">
+                    Choose a category for this device.
+                </small>
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-save-btn"
+                    ng-click="save()">
+                <i class="fa-solid fa-check"></i> Save
+            </button>
+
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <!-- Delete Confirmation Modal -->
+    <script type="text/ng-template" id="deleteConfirmModal.html">
+        <div class="delete-modal">
+
+            <div class="delete-icon">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+
+            <h3 class="delete-title">Delete Device?</h3>
+
+            <p class="delete-message">
+                Are you sure you want to delete
+                <strong>{{ deviceName }}</strong>?
+            </p>
+
+        <p class="delete-warning">
+            This action cannot be undone.
+        </p>
+
+        <p class="delete-info">
+            Note: This device cannot be deleted if it has phone numbers assigned to it.
+        </p>
+
+            <div class="delete-actions">
+                <button type="button"
+                        class="btn delete-cancel-btn"
+                        ng-click="cancel()">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        class="btn delete-confirm-btn"
+                        ng-click="confirmDelete()">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete
+                </button>
+            </div>
+
+        </div>
+    </script>
+
+</div>

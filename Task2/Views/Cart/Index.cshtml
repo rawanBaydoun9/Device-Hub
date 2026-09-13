@@ -1,0 +1,164 @@
+﻿@{
+    ViewData["Title"] = "Cart";
+}
+
+<div ng-app="devicesApp" ng-controller="CartController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card cart-page-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">My Cart</span>
+                <h1 class="page-title">Cart</h1>
+                <p class="cart-subtitle">
+                    Review your selected devices before submitting your request.
+                </p>
+            </div>
+
+            <div class="cart-summary-bar" ng-if="cartItems.length > 0">
+                <div>
+                    <strong>{{ cartItems.length }}</strong>
+                    <span>items selected</span>
+                </div>
+
+                <button type="button"
+                        class="cart-clear-btn"
+                        ng-click="clearCart()">
+                    <i class="fa-solid fa-trash"></i>
+                    Clear Cart
+                </button>
+            </div>
+
+            <div class="table-responsive" ng-if="cartItems.length > 0">
+                <table class="table devices-table cart-table">
+                    <thead>
+                        <tr>
+                            <th>Device</th>
+                            <th>Category</th>
+                            <th>Available</th>
+                            <th>Quantity</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="item in cartItems">
+                            <td class="device-name">
+                                {{ item.deviceName }}
+                            </td>
+
+                            <td>
+                                <span class="category-badge">
+                                    {{ item.categoryName || 'No Category' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ item.availableQuantity }}
+                            </td>
+
+                            <td>
+                                <div class="quantity-control">
+                                    <button type="button"
+                                            class="qty-btn"
+                                            ng-click="decreaseCartQuantity(item)"
+                                            ng-disabled="item.quantity <= 1">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </button>
+
+                                    <input type="number"
+                                           class="qty-input"
+                                           min="1"
+                                           max="{{ item.availableQuantity }}"
+                                           ng-model="item.quantity"
+                                           ng-model-options="{ debounce: 600 }"
+                                           ng-change="manualCartQuantityChange(item)" />
+
+                                    <button type="button"
+                                            class="qty-btn"
+                                            ng-click="increaseCartQuantity(item)"
+                                            ng-disabled="item.quantity >= item.availableQuantity">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        class="action-btn delete-btn"
+                                        ng-click="removeFromCart(item)"
+                                        title="Remove">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cart-actions" ng-if="cartItems.length > 0">
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="cart-secondary-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Continue Browsing
+                </a>
+
+                <button type="button"
+                        class="cart-submit-btn"
+                        ng-click="submitRequest()">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    Submit Request
+                </button>
+            </div>
+
+            <div class="cart-empty-state" ng-if="cartItems && cartItems.length === 0">
+                <div class="cart-empty-icon">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+
+                <h3>Your cart is empty</h3>
+
+                <p>
+                    Browse available devices and add items to your cart.
+                </p>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="cart-submit-btn cart-empty-link">
+                    Browse Devices
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,127 @@
+﻿@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="simple-auth-page">
+
+    <div class="simple-auth-card">
+
+        <div class="simple-auth-header">
+            <div class="simple-auth-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+
+            <h1>Create Account</h1>
+            <p>Register to access Device Hub</p>
+        </div>
+
+        <form id="registerForm"
+              asp-route-returnUrl="@Model.ReturnUrl"
+              method="post">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="identity-validation-summary"
+                 role="alert">
+            </div>
+
+            <div class="simple-auth-group">
+                <label asp-for="Input.FullName">Full Name</label>
+
+                <div class="simple-auth-input">
+                    <i class="fa-solid fa-id-card"></i>
+
+                    <input asp-for="Input.FullName"
+                           autocomplete="name"
+                           aria-required="true"
+                           placeholder="Enter your full name" />
+                </div>
+
+                <span asp-validation-for="Input.FullName" class="identity-validation"></span>
+            </div>
+
+            <div class="simple-auth-group">
+                <label asp-for="Input.PhoneNumber">Mobile Number</label>
+
+                <div class="simple-auth-input">
+                    <i class="fa-solid fa-phone"></i>
+
+                    <input asp-for="Input.PhoneNumber"
+                           autocomplete="tel"
+                           aria-required="true"
+                           placeholder="Enter your mobile number" />
+                </div>
+
+                <span asp-validation-for="Input.PhoneNumber" class="identity-validation"></span>
+            </div>
+
+            <div class="simple-auth-group">
+                <label asp-for="Input.Email">Email</label>
+
+                <div class="simple-auth-input">
+                    <i class="fa-solid fa-envelope"></i>
+
+                    <input asp-for="Input.Email"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="name@example.com" />
+                </div>
+
+                <span asp-validation-for="Input.Email" class="identity-validation"></span>
+            </div>
+
+            <div class="simple-auth-group">
+                <label asp-for="Input.Password">Password</label>
+
+                <div class="simple-auth-input">
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input asp-for="Input.Password"
+                           autocomplete="new-password"
+                           aria-required="true"
+                           placeholder="Create password" />
+                </div>
+
+                <span asp-validation-for="Input.Password" class="identity-validation"></span>
+            </div>
+
+            <div class="simple-auth-group">
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+
+                <div class="simple-auth-input">
+                    <i class="fa-solid fa-check"></i>
+
+                    <input asp-for="Input.ConfirmPassword"
+                           autocomplete="new-password"
+                           aria-required="true"
+                           placeholder="Confirm password" />
+                </div>
+
+                <span asp-validation-for="Input.ConfirmPassword" class="identity-validation"></span>
+            </div>
+
+            <button id="registerSubmit"
+                    type="submit"
+                    class="simple-auth-btn">
+                Create account
+            </button>
+
+            <div class="simple-auth-footer">
+                <span>Already registered?</span>
+                <a asp-page="./Login"
+                   asp-route-returnUrl="@Model.ReturnUrl">
+                    Log in
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

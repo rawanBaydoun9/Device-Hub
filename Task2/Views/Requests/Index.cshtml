@@ -1,0 +1,135 @@
+﻿@{
+    ViewData["Title"] = "Requests";
+}
+
+<div ng-app="devicesApp" ng-controller="RequestsController" class="devices-page">
+
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">Admin</span>
+                <h1 class="page-title">Device Requests</h1>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-box">
+                    <i class="fa-solid fa-filter filter-icon"></i>
+
+                    <select class="stock-filter"
+                            ng-model="statusFilter"
+                            ng-change="loadRequests()">
+                        <option value="">All Requests</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="requests-list">
+
+                <div class="request-card" ng-repeat="request in requests">
+
+                    <div class="request-card-header">
+                        <div>
+                            <h3>Request #{{ request.id }}</h3>
+                            <p>
+                                {{ request.fullName || request.userName }}
+                                <span ng-if="request.phoneNumber"> • {{ request.phoneNumber }}</span>
+                            </p>
+                        </div>
+
+                        <span class="request-status"
+                              ng-class="{
+                                'status-pending': request.status === 'Pending',
+                                'status-accepted': request.status === 'Accepted',
+                                'status-rejected': request.status === 'Rejected'
+                              }">
+                            {{ request.status }}
+                        </span>
+                    </div>
+
+                    <div class="request-date">
+                        <i class="fa-regular fa-clock"></i>
+                        {{ request.requestedAt | date:'medium' }}
+                    </div>
+
+                    <div class="request-items-table">
+                        <table class="table devices-table">
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr ng-repeat="item in request.items">
+                                    <td class="device-name">{{ item.deviceName }}</td>
+                                    <td>
+                                        <span class="category-badge">
+                                            {{ item.categoryName || 'No Category' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="request-actions" ng-if="request.status === 'Pending'">
+                        <button type="button"
+                                class="btn request-accept-btn"
+                                ng-click="acceptRequest(request)">
+                            <i class="fa-solid fa-check"></i>
+                            Accept
+                        </button>
+
+                        <button type="button"
+                                class="btn request-reject-btn"
+                                ng-click="rejectRequest(request)">
+                            <i class="fa-solid fa-xmark"></i>
+                            Reject
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="empty-state" ng-if="requests && requests.length === 0">
+                    No requests found.
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

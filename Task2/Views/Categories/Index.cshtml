@@ -1,0 +1,189 @@
+﻿<div ng-app="devicesApp" ng-controller="CategoriesPageController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">Category Manager</span>
+                <h1 class="page-title">Categories</h1>
+            </div>
+
+            <div class="filter-search-area">
+
+                <div class="search-box">
+                    <div class="input-group custom-input-group">
+                        <input type="text"
+                               class="form-control device-input"
+                               placeholder="Search category name..."
+                               ng-model="categorySearchText" />
+
+                        <span class="input-group-btn">
+                            <button class="btn btn-main"
+                                    ng-click="openCategoryModal()"
+                                    title="Add Category">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+                <table class="table devices-table categories-table">
+                    <thead>
+                        <tr>
+                            <th class="id-col">ID</th>
+                            <th>Category Name</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="category in categories | filter:categorySearchText">
+                            <td>{{ category.id }}</td>
+
+                            <td class="device-name">
+                                <span class="category-badge">
+                                    {{ category.name }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="action-group">
+                                    <button class="action-btn edit-btn"
+                                            ng-click="openCategoryModal(category)"
+                                            title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+
+                                    <button class="action-btn delete-btn"
+                                            ng-click="deleteCategory(category)"
+                                            title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-if="categories.length === 0">
+                            <td colspan="3" class="empty-state">
+                                No categories found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <script type="text/ng-template" id="categoryModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="modal-error" ng-if="errorMessage">
+                 <i class="fa-solid fa-circle-exclamation"></i>
+                 {{ errorMessage }}
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Category Name</label>
+
+                <input type="text"
+                       class="form-control modal-input"
+                       ng-model="category.name"
+                       maxlength="50"
+                       placeholder="Enter category name" />
+
+                <small class="input-hint">
+                    Maximum 50 characters. Category name must be unique.
+                </small>
+            </div>
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button class="btn modal-save-btn" ng-click="save()">
+                <i class="fa-solid fa-check"></i> Save
+            </button>
+
+            <button class="btn modal-cancel-btn" ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <!-- Delete Category Modal -->
+    <script type="text/ng-template" id="deleteCategoryModal.html">
+        <div class="delete-modal">
+
+            <div class="delete-icon">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
+
+            <h3 class="delete-title">Delete Category?</h3>
+
+            <p class="delete-message">
+                Are you sure you want to delete
+                <strong>{{ categoryName }}</strong>?
+            </p>
+
+                <p class="delete-warning">
+            This action cannot be undone.
+        </p>
+
+        <p class="delete-info">
+            Note: This category cannot be deleted if it has devices assigned to it.
+        </p>
+
+        <p class="delete-info">
+            Note: This category cannot be deleted if it has devices assigned to it.
+        </p>
+
+            <div class="delete-actions">
+                <button class="btn delete-cancel-btn" ng-click="cancel()">
+                    Cancel
+                </button>
+
+                <button class="btn delete-confirm-btn" ng-click="confirmDelete()">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete
+                </button>
+            </div>
+
+        </div>
+    </script>
+
+</div>

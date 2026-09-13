@@ -1,0 +1,86 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="simple-auth-page">
+
+    <div class="simple-auth-card">
+
+        <div class="simple-auth-header">
+            <div class="simple-auth-icon">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <h1>Device Hub</h1>
+            <p>Log in to continue</p>
+        </div>
+
+        <form id="account" method="post">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="identity-validation-summary"
+                 role="alert">
+            </div>
+
+            <div class="simple-auth-group">
+                <label asp-for="Input.Email">Email</label>
+
+                <div class="simple-auth-input">
+                    <i class="fa-solid fa-envelope"></i>
+
+                    <input asp-for="Input.Email"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="name@example.com" />
+                </div>
+
+                <span asp-validation-for="Input.Email" class="identity-validation"></span>
+            </div>
+
+            <div class="simple-auth-group">
+                <label asp-for="Input.Password">Password</label>
+
+                <div class="simple-auth-input">
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input asp-for="Input.Password"
+                           autocomplete="current-password"
+                           aria-required="true"
+                           placeholder="Enter password" />
+                </div>
+
+                <span asp-validation-for="Input.Password" class="identity-validation"></span>
+            </div>
+
+            <div class="simple-auth-row">
+                <label>
+                    <input asp-for="Input.RememberMe" />
+                    Remember me
+                </label>
+
+                <a asp-page="./ForgotPassword">Forgot?</a>
+            </div>
+
+            <button id="login-submit" type="submit" class="simple-auth-btn">
+                Log in
+            </button>
+
+            <div class="simple-auth-footer">
+                <span>New user?</span>
+                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">
+                    Create account
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,59 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build output
+bin/
+obj/
+Debug/
+Release/
+[Bb]uild/
+[Dd]ebug*/
+[Rr]elease*/
+
+# Publish output
+publish/
+Published/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Logs
+*.log
+logs/
+
+# Test results
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Local database files
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf
+
+# Node packages, if you use npm later
+node_modules/
+
+# Environment / secret files
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# JetBrains Rider
+.idea/
+*.sln.iml

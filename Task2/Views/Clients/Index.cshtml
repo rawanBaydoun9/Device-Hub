@@ -1,0 +1,404 @@
+﻿<div ng-app="devicesApp" ng-controller="ClientsPageController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">Client Manager</span>
+                <h1 class="page-title">Clients</h1>
+                <p class="page-subtitle">
+                    Manage individual and organization clients, import client data, and control phone number reservations.
+                </p>
+            </div>
+
+            <!-- Search + Actions + Filters -->
+            <div class="filter-search-area clients-management-area">
+
+                <!-- Search and Main Actions -->
+                <div class="client-toolbar">
+
+                    <div class="client-search-box">
+                        <div class="input-group custom-input-group">
+                            <input type="text"
+                                   class="form-control device-input"
+                                   placeholder="Search client name..."
+                                   ng-model="clientSearchText" />
+
+                            <span class="input-group-btn">
+                                <button type="button"
+                                        class="btn btn-main"
+                                        title="Search">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="client-action-buttons">
+
+                        <button type="button"
+                                class="client-action-btn add-client-action"
+                                ng-click="openClientModal()"
+                                title="Add Client">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add Client</span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-row client-filter-row">
+                    <div class="filter-box client-type-filter-box">
+                        <i class="fa-solid fa-users filter-icon"></i>
+
+                        <client-type-selector selected-value="clientTypeFilter"
+                                              include-all="true"
+                                              css-class="stock-filter">
+                        </client-type-selector>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Clients Table -->
+            <div class="table-responsive">
+                <table class="table devices-table">
+                    <thead>
+                        <tr>
+                            <th class="id-col">ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Birth Date</th>
+                            <th>Active Numbers</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="client in clients | filter:clientSearchText | filter:filterClientType">
+                            <td>{{ client.id }}</td>
+
+                            <td class="device-name">
+                                {{ client.name }}
+                            </td>
+
+                            <td>
+                                <span class="category-badge"
+                                      ng-class="{ 'organization-badge': client.typeName === 'Organization' }">
+                                    {{ client.typeName }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ client.birthDateText }}
+                            </td>
+
+                            <td>
+                                <span class="category-badge"
+                                      ng-class="{ 'active-reservation-badge': client.activeReservationCount > 0 }">
+                                    {{ client.activeReservationCount }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="action-group client-action-group">
+
+                                    <button type="button"
+                                            class="action-btn edit-btn"
+                                            ng-click="openClientModal(client)"
+                                            title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            class="action-btn delete-btn"
+                                            ng-click="deleteClient(client)"
+                                            title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            class="client-reserve-btn"
+                                            ng-click="openReserveModal(client)"
+                                            title="Reserve Phone Number">
+                                        <i class="fa-solid fa-phone-volume"></i>
+                                        Reserve
+                                    </button>
+
+                                    <button type="button"
+                                            class="client-unreserve-btn"
+                                            ng-click="openUnreserveModal(client)"
+                                            ng-disabled="!client.hasActivePhoneReservation"
+                                            title="Unreserve Phone Number">
+                                        <i class="fa-solid fa-phone-slash"></i>
+                                        Unreserve
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-if="clients.length === 0">
+                            <td colspan="6" class="empty-state">
+                                No clients found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Add/Edit Client Modal -->
+    <script type="text/ng-template" id="clientModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+            <p class="modal-subtitle">
+                Individual clients require birth date. Organizations do not.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="modal-error" ng-if="errorMessage">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errorMessage }}
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Client Name</label>
+
+                <input type="text"
+                       class="form-control modal-input"
+                       ng-model="client.name"
+                       maxlength="50"
+                       placeholder="Enter client name" />
+
+                <small class="input-hint">
+                    Maximum 50 characters.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Client Type</label>
+
+                <client-type-selector selected-value="client.type"
+                                      include-all="false"
+                                      css-class="form-control modal-input"
+                                      on-changed="onTypeChange(selectedValue)">
+                </client-type-selector>
+
+                <small class="input-hint">
+                    Choose Individual or Organization.
+                </small>
+            </div>
+
+            <div class="form-group" ng-if="client.type === 1">
+                <label class="modal-label">Birth Date</label>
+
+                <input type="date"
+                       class="form-control modal-input"
+                       ng-model="client.birthDate" />
+
+                <small class="input-hint">
+                    Birth date is required for individual clients.
+                </small>
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-save-btn"
+                    ng-click="save()">
+                <i class="fa-solid fa-check"></i> Save
+            </button>
+
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <!-- Delete Client Modal -->
+    <script type="text/ng-template" id="deleteClientModal.html">
+        <div class="delete-modal">
+
+            <div class="delete-icon">
+                <i class="fa-solid fa-user-xmark"></i>
+            </div>
+
+            <h3 class="delete-title">Delete Client?</h3>
+
+            <p class="delete-message">
+                Are you sure you want to delete
+                <strong>{{ clientName }}</strong>?
+            </p>
+
+            <p class="delete-warning">
+                This action cannot be undone.
+            </p>
+
+            <p class="delete-info">
+                Note: This client cannot be deleted if they have reservation history.
+            </p>
+
+            <div class="delete-actions">
+                <button type="button"
+                        class="btn delete-cancel-btn"
+                        ng-click="cancel()">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        class="btn delete-confirm-btn"
+                        ng-click="confirmDelete()">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete
+                </button>
+            </div>
+
+        </div>
+    </script>
+
+    <!-- Reserve Phone Number Modal -->
+    <script type="text/ng-template" id="reservePhoneNumberModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Reserve Phone Number</h3>
+            <p class="modal-subtitle">
+                Select an available phone number for {{ clientName }}.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="modal-error" ng-if="errorMessage">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errorMessage }}
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Available Phone Number</label>
+
+                <phone-number-selector selected-value="selectedPhoneNumberId"
+                                       phone-numbers="availablePhoneNumbers"
+                                       include-all="false"
+                                       css-class="form-control modal-input"
+                                       placeholder="Select available phone number">
+                </phone-number-selector>
+
+                <small class="input-hint">
+                    Only phone numbers without an active reservation appear here.
+                </small>
+            </div>
+
+            <div class="empty-state" ng-if="availablePhoneNumbers.length === 0">
+                No available phone numbers found.
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-save-btn"
+                    ng-click="save()"
+                    ng-disabled="availablePhoneNumbers.length === 0">
+                <i class="fa-solid fa-check"></i> Reserve
+            </button>
+
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <!-- Unreserve Phone Number Modal -->
+    <script type="text/ng-template" id="unreservePhoneNumberModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Unreserve Phone Number</h3>
+            <p class="modal-subtitle">
+                Select one active phone number reservation for {{ clientName }}.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="modal-error" ng-if="errorMessage">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errorMessage }}
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Reserved Phone Number</label>
+
+                <phone-number-selector selected-value="selectedPhoneNumberId"
+                                       phone-numbers="reservedPhoneNumbers"
+                                       include-all="false"
+                                       css-class="form-control modal-input"
+                                       placeholder="Select reserved phone number">
+                </phone-number-selector>
+
+                <small class="input-hint">
+                    Saving will set the reservation end date to now. The reservation history will remain.
+                </small>
+            </div>
+
+            <div class="empty-state" ng-if="reservedPhoneNumbers.length === 0">
+                This client has no active reserved phone numbers.
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn delete-confirm-btn"
+                    ng-click="save()"
+                    ng-disabled="reservedPhoneNumbers.length === 0">
+                <i class="fa-solid fa-phone-slash"></i> Unreserve
+            </button>
+
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+
+</div>

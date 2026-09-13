@@ -1,0 +1,149 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<div class="identity-page">
+
+    <div class="identity-card profile-identity-card">
+
+        <div class="identity-left-panel">
+            <span class="page-badge">Device Hub</span>
+
+            <h1 class="identity-title">My Profile</h1>
+
+            <p class="identity-subtitle">
+                Manage your personal account details.
+            </p>
+
+            <div class="identity-feature-list">
+                <div class="identity-feature-item">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>Update your full name</span>
+                </div>
+
+                @if (!Model.IsAdmin)
+                {
+                    <div class="identity-feature-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>Manage your mobile number</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="identity-feature-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>System admin profile</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="identity-form-panel">
+
+            <div class="identity-form-header">
+                <div class="identity-form-icon">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <h2>Profile Details</h2>
+
+                <p>
+                    Update your account profile information.
+                </p>
+            </div>
+
+            <partial name="_StatusMessage" for="StatusMessage" />
+
+            <form id="profile-form" method="post" class="identity-form">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="identity-validation-summary"
+                     role="alert">
+                </div>
+
+                <div class="identity-form-group">
+                    <label asp-for="Username">Email / Username</label>
+
+                    <div class="identity-input-wrapper readonly-input-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+
+                        <input asp-for="Username"
+                               class="identity-input"
+                               disabled />
+                    </div>
+                </div>
+
+                <div class="identity-form-group">
+                    <label asp-for="Input.FullName">Full Name</label>
+
+                    <div class="identity-input-wrapper @(Model.IsAdmin ? "readonly-input-wrapper" : "")">
+                        <i class="fa-solid fa-id-card"></i>
+
+                        <input asp-for="Input.FullName"
+                               class="identity-input"
+                               placeholder="Enter your full name"
+                               readonly="@Model.IsAdmin" />
+                    </div>
+
+                    <span asp-validation-for="Input.FullName"
+                          class="identity-validation">
+                    </span>
+                </div>
+
+                @if (!Model.IsAdmin)
+                {
+                    <div class="identity-form-group">
+                        <label asp-for="Input.PhoneNumber">Mobile Number</label>
+
+                        <div class="identity-input-wrapper">
+                            <i class="fa-solid fa-phone"></i>
+
+                            <input asp-for="Input.PhoneNumber"
+                                   class="identity-input"
+                                   placeholder="Enter your mobile number" />
+                        </div>
+
+                        <span asp-validation-for="Input.PhoneNumber"
+                              class="identity-validation">
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-profile-note">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        System Admin does not require a mobile number.
+                    </div>
+                }
+
+                <button id="update-profile-button"
+                        type="submit"
+                        class="identity-submit-btn">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Save Profile
+                </button>
+
+                <div class="identity-bottom-links">
+                    <p>
+                        Want to update security?
+                        <a asp-page="./ChangePassword">
+                            Change password
+                        </a>
+                    </p>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

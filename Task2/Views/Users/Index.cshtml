@@ -1,0 +1,201 @@
+﻿@{
+    ViewData["Title"] = "Users";
+}
+
+<div ng-app="devicesApp" ng-controller="UsersController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card">
+
+            <div class="page-header-modern users-header-modern">
+                <span class="page-badge">Admin</span>
+
+                <h1 class="page-title">Manage Users</h1>
+
+                <p class="users-page-subtitle">
+                    View registered users and create new system accounts.
+                </p>
+
+                <button type="button"
+                        class="btn user-create-btn"
+                        ng-click="openCreateUserModal()">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Add User
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table devices-table users-table">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Mobile Number</th>
+                            <th>Role</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="user in users">
+                            <td class="device-name">
+                                {{ user.fullName || 'No Name' }}
+                            </td>
+
+                            <td>
+                                {{ user.email }}
+                            </td>
+
+                            <td>
+                                <span ng-if="user.role === 'Admin'" class="admin-phone-muted">
+                                    Not required
+                                </span>
+
+                                <span ng-if="user.role !== 'Admin'">
+                                    {{ user.phoneNumber || 'No Number' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="user-role-badge"
+                                      ng-class="{ 'admin-role': user.role === 'Admin' }">
+                                    {{ user.role }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ user.createdAt | date:'medium' }}
+                            </td>
+                        </tr>
+
+                        <tr ng-if="users && users.length === 0">
+                            <td colspan="5" class="empty-state">
+                                No users found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <script type="text/ng-template" id="createUserModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Create User</h3>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="modal-error" ng-if="errorMessage">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errorMessage }}
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Full Name</label>
+
+                <input type="text"
+                       class="form-control modal-input"
+                       ng-model="user.fullName"
+                       maxlength="80"
+                       placeholder="Enter full name" />
+
+                <small class="input-hint">
+                    Required. Maximum 80 characters.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Mobile Number</label>
+
+                <input type="text"
+                       class="form-control modal-input"
+                       ng-model="user.phoneNumber"
+                       placeholder="Enter mobile number" />
+
+                <small class="input-hint">
+                    Required mobile number for the user account.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Email</label>
+
+                <input type="email"
+                       class="form-control modal-input"
+                       ng-model="user.email"
+                       placeholder="name@example.com" />
+
+                <small class="input-hint">
+                    This email will be used to log in.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Password</label>
+
+                <input type="password"
+                       class="form-control modal-input"
+                       ng-model="user.password"
+                       placeholder="Minimum 6 characters" />
+
+                <small class="input-hint">
+                    Password must be at least 6 characters.
+                </small>
+            </div>
+
+                   <div class="user-role-note">
+            <i class="fa-solid fa-user"></i>
+            New accounts are created as normal users.
+        </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-save-btn"
+                    ng-click="save()">
+                <i class="fa-solid fa-check"></i>
+                Create
+            </button>
+
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i>
+                Cancel
+            </button>
+        </div>
+    </script>
+
+</div>

@@ -1,0 +1,240 @@
+﻿<div ng-app="devicesApp" ng-controller="PhoneNumbersPageController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                    'fa-circle-check': toast.type === 'success',
+                    'fa-circle-xmark': toast.type === 'error',
+                    'fa-circle-info': toast.type === 'info'
+               }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card">
+
+            <div class="page-header-modern">
+                <span class="page-badge">Phone Manager</span>
+                <h1 class="page-title">Phone Numbers</h1>
+                <p class="page-subtitle">
+                    Manage phone numbers and link each number to a device.
+                </p>
+            </div>
+
+            <!-- Search + Filters -->
+            <div class="filter-search-area">
+
+                <div class="search-box">
+                    <div class="input-group custom-input-group">
+                        <input type="text"
+                               class="form-control device-input"
+                               placeholder="Search phone number..."
+                               ng-model="phoneSearchText" />
+
+                        <span class="input-group-btn">
+                            <button type="button"
+                                    class="btn btn-main btn-add"
+                                    ng-click="openPhoneNumberModal()"
+                                    title="Add Phone Number">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="filter-row">
+
+                    <!-- Device Filter -->
+                    <div class="filter-box">
+                        <i class="fa-solid fa-mobile-screen-button filter-icon"></i>
+
+                        <device-selector selected-value="deviceFilter"
+                                         devices="devices"
+                                         include-all="true"
+                                         css-class="stock-filter">
+                        </device-selector>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Phone Numbers Table -->
+            <div class="table-responsive">
+                <table class="table devices-table categories-table">
+                    <thead>
+                        <tr>
+                            <th class="id-col">ID</th>
+                            <th>Number</th>
+                            <th>Device</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="phoneNumber in phoneNumbers | filter:phoneSearchText | filter:filterByDevice">
+                            <td>{{ phoneNumber.id }}</td>
+
+                            <td class="device-name">
+                                <i class="fa-solid fa-phone phone-inline-icon"></i>
+                                {{ phoneNumber.number }}
+                            </td>
+
+                            <td>
+                                <span class="category-badge">
+                                    {{ phoneNumber.deviceName }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="action-group">
+                                    <button type="button"
+                                            class="action-btn edit-btn"
+                                            ng-click="openPhoneNumberModal(phoneNumber)"
+                                            title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            class="action-btn delete-btn"
+                                            ng-click="deletePhoneNumber(phoneNumber)"
+                                            title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-if="phoneNumbers.length === 0">
+                            <td colspan="4" class="empty-state">
+                                No phone numbers found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Add/Edit Phone Number Modal -->
+    <script type="text/ng-template" id="phoneNumberModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+            <p class="modal-subtitle">
+                Enter a valid phone number and choose the linked device.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="modal-error" ng-if="errorMessage">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errorMessage }}
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Phone Number</label>
+
+                <input type="text"
+                       class="form-control modal-input"
+                       ng-model="phoneNumber.number"
+                       maxlength="20"
+                       placeholder="Example: +961 70 123 456" />
+
+                <small class="input-hint">
+                    Allowed: digits, spaces, +, -, and parentheses.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="modal-label">Device</label>
+
+                        <device-selector selected-value="phoneNumber.deviceId"
+                         devices="devices"
+                         include-all="false"
+                         css-class="form-control modal-input">
+        </device-selector>
+
+                <small class="input-hint">
+                    Choose the device connected to this number.
+                </small>
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-save-btn"
+                    ng-click="save()">
+                <i class="fa-solid fa-check"></i> Save
+            </button>
+
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <!-- Delete Phone Number Modal -->
+    <script type="text/ng-template" id="deletePhoneNumberModal.html">
+        <div class="delete-modal">
+
+            <div class="delete-icon">
+                <i class="fa-solid fa-phone-slash"></i>
+            </div>
+
+            <h3 class="delete-title">Delete Phone Number?</h3>
+
+            <p class="delete-message">
+                Are you sure you want to delete
+                <strong>{{ phoneNumberValue }}</strong>?
+            </p>
+
+                    <p class="delete-warning">
+            This action cannot be undone.
+        </p>
+
+        <p class="delete-info">
+            Note: This phone number cannot be deleted if it has reservation history.
+        </p>
+
+            <div class="delete-actions">
+                <button type="button"
+                        class="btn delete-cancel-btn"
+                        ng-click="cancel()">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        class="btn delete-confirm-btn"
+                        ng-click="confirmDelete()">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete
+                </button>
+            </div>
+
+        </div>
+    </script>
+
+</div>

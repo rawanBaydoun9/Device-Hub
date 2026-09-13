@@ -1,0 +1,66 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Task2.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @if (!User.IsInRole("Admin"))
+    {
+        <li>
+            <a asp-controller="Cart"
+               asp-action="Index"
+               class="navbar-icon-link"
+               title="Cart">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </a>
+        </li>
+
+        <li>
+            <a asp-controller="MyRequests"
+               asp-action="Index"
+               class="navbar-icon-link"
+               title="My Requests">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </a>
+        </li>
+    }
+
+    <li>
+        <a asp-area="Identity"
+           asp-page="/Account/Manage/Index"
+           class="navbar-icon-link"
+           title="Profile">
+            <i class="fa-solid fa-user-gear"></i>
+        </a>
+    </li>
+
+    <li>
+        <button type="button"
+                class="logout-link-btn navbar-icon-link"
+                data-toggle="modal"
+                data-target="#logoutConfirmModal"
+                title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+    </li>
+}
+else
+{
+    <li>
+        <a asp-area="Identity"
+           asp-page="/Account/Register">
+            <i class="fa-solid fa-user-plus"></i>
+            Register
+        </a>
+    </li>
+
+    <li>
+        <a asp-area="Identity"
+           asp-page="/Account/Login">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Login
+        </a>
+    </li>
+}

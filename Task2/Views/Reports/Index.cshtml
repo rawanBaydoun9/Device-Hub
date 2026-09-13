@@ -1,0 +1,1167 @@
+﻿@{
+    ViewData["Title"] = "Reports";
+}
+
+<div ng-app="devicesApp" ng-controller="ReportsPageController" class="devices-page">
+
+    <!-- Toast Notification -->
+    <div class="toast-container-custom" ng-if="toast.show">
+        <div class="app-toast" ng-class="'toast-' + toast.type">
+            <div class="toast-icon">
+                <i class="fa-solid"
+                   ng-class="{
+                        'fa-circle-check': toast.type === 'success',
+                        'fa-circle-xmark': toast.type === 'error',
+                        'fa-circle-info': toast.type === 'info'
+                   }">
+                </i>
+            </div>
+
+            <div class="toast-content">
+                <strong>{{ toast.title }}</strong>
+                <span>{{ toast.message }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="isLoading">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <p>{{ loadingMessage }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="devices-card reports-main-card">
+
+            <div class="page-header-modern reports-header">
+                <span class="page-badge">Reports Center</span>
+                <h1 class="page-title">Reports</h1>
+                <p class="page-subtitle">
+                    View business summaries, clients reports, devices reports, and reservation reports.
+                </p>
+            </div>
+
+            <!-- Small Dashboard Cards -->
+            <div class="reports-summary-grid">
+
+                <div class="report-summary-card">
+                    <div class="report-summary-icon devices-icon">
+                        <i class="fa-solid fa-laptop"></i>
+                    </div>
+
+                    <div class="report-summary-info">
+                        <span>Devices</span>
+                        <strong>{{ summary.totalDevices }}</strong>
+                    </div>
+                </div>
+
+                <div class="report-summary-card">
+                    <div class="report-summary-icon categories-icon">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+
+                    <div class="report-summary-info">
+                        <span>Categories</span>
+                        <strong>{{ summary.totalCategories }}</strong>
+                    </div>
+                </div>
+
+                <div class="report-summary-card">
+                    <div class="report-summary-icon clients-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+
+                    <div class="report-summary-info">
+                        <span>Clients</span>
+                        <strong>{{ summary.totalClients }}</strong>
+                    </div>
+                </div>
+
+                <div class="report-summary-card">
+                    <div class="report-summary-icon phone-icon">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+
+                    <div class="report-summary-info">
+                        <span>Phone Numbers</span>
+                        <strong>{{ summary.totalPhoneNumbers }}</strong>
+                    </div>
+                </div>
+
+                <div class="report-summary-card">
+                    <div class="report-summary-icon active-icon">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+
+                    <div class="report-summary-info">
+                        <span>Reserved</span>
+                        <strong>{{ summary.activeReservations }}</strong>
+                    </div>
+                </div>
+
+                <div class="report-summary-card">
+                    <div class="report-summary-icon ended-icon">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </div>
+
+                    <div class="report-summary-info">
+                        <span>Ended</span>
+                        <strong>{{ summary.endedReservations }}</strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Report Navigation Tabs -->
+            <div class="reports-tabs">
+                <button type="button"
+                        class="reports-tab-btn"
+                        ng-class="{ 'active': activeReportTab === 'overview' }"
+                        ng-click="setReportTab('overview')">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Overview
+                </button>
+
+                <button type="button"
+                        class="reports-tab-btn"
+                        ng-class="{ 'active': activeReportTab === 'clients' }"
+                        ng-click="setReportTab('clients')">
+                    <i class="fa-solid fa-users"></i>
+                    Clients Report
+                </button>
+
+                <button type="button"
+                        class="reports-tab-btn"
+                        ng-class="{ 'active': activeReportTab === 'devices' }"
+                        ng-click="setReportTab('devices')">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    Devices Report
+                </button>
+
+                <button type="button"
+                        class="reports-tab-btn"
+                        ng-class="{ 'active': activeReportTab === 'reservations' }"
+                        ng-click="setReportTab('reservations')">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Reservations Report
+                </button>
+
+                <button type="button"
+                        class="reports-tab-btn"
+                        ng-class="{ active: activeReportTab === 'imports' }"
+                        ng-click="setReportTab('imports')">
+                    <i class="fa-solid fa-file-import"></i>
+                    Import Data
+                </button>
+            </div>
+
+            <!-- Overview Section -->
+            <div class="report-section" ng-show="activeReportTab === 'overview'">
+
+                <div class="report-section-header">
+                    <h2>Business Overview</h2>
+                    <p>
+                        Quick insights about current phone number usage and reservation activity.
+                    </p>
+                </div>
+
+                <div class="business-insights-grid">
+
+                    <div class="business-insight-card">
+                        <div class="business-insight-icon active-icon">
+                            <i class="fa-solid fa-phone-volume"></i>
+                        </div>
+
+                        <div class="business-insight-content">
+                            <span>Reserved Phone Numbers</span>
+                            <strong>{{ overview.reservedPhoneNumbers }}</strong>
+                            <p>Phone numbers with active reservation now.</p>
+                        </div>
+                    </div>
+
+                    <div class="business-insight-card">
+                        <div class="business-insight-icon phone-icon">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+
+                        <div class="business-insight-content">
+                            <span>Available Phone Numbers</span>
+                            <strong>{{ overview.availablePhoneNumbers }}</strong>
+                            <p>Phone numbers without active reservation.</p>
+                        </div>
+                    </div>
+
+                    <div class="business-insight-card">
+                        <div class="business-insight-icon clients-icon">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+
+                        <div class="business-insight-content">
+                            <span>Clients With Reservations</span>
+                            <strong>{{ overview.clientsWithActiveReservations }}</strong>
+                            <p>Clients currently using at least one number.</p>
+                        </div>
+                    </div>
+
+                    <div class="business-insight-card">
+                        <div class="business-insight-icon ended-icon">
+                            <i class="fa-solid fa-user-clock"></i>
+                        </div>
+
+                        <div class="business-insight-content">
+                            <span>Clients Without Reservations</span>
+                            <strong>{{ overview.clientsWithoutActiveReservations }}</strong>
+                            <p>Clients with no active phone number now.</p>
+                        </div>
+                    </div>
+
+                    <div class="business-insight-card wide-insight-card">
+                        <div class="business-insight-icon categories-icon">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+
+                        <div class="business-insight-content">
+                            <span>Most Active Client</span>
+                            <strong>{{ overview.mostActiveClientName }}</strong>
+                            <p>{{ overview.mostActiveClientReservations }} active reservation(s).</p>
+                        </div>
+                    </div>
+
+                    <div class="business-insight-card wide-insight-card">
+                        <div class="business-insight-icon devices-icon">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+
+                        <div class="business-insight-content">
+                            <span>Most Reserved Device</span>
+                            <strong>{{ overview.mostReservedDeviceName }}</strong>
+                            <p>{{ overview.mostReservedDeviceCount }} active reserved number(s).</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Import Data Section -->
+            <div class="report-section" ng-if="activeReportTab === 'imports'">
+
+                <div class="report-section-header">
+                    <h2>Import Data</h2>
+                    <p>
+                        Upload CSV files and import data into the system with row-by-row validation and history tracking.
+                    </p>
+                </div>
+
+                <div class="central-import-card">
+
+                    <div class="central-import-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+
+                    <div class="central-import-content">
+
+                        <div class="form-group">
+                            <label class="modal-label">Import Type</label>
+
+                            <select class="form-control modal-input"
+                                    ng-model="centralImport.importType">
+                                <option value="clients">Clients</option>
+                                <option value="categories">Categories</option>
+                                <option value="devices">Devices</option>
+                                <option value="phoneNumbers">Phone Numbers</option>
+                            </select>
+
+                            <small class="input-hint" ng-if="centralImport.importType === 'clients'">
+                                For Clients use: Name, Type, BirthDate
+                            </small>
+
+                            <small class="input-hint" ng-if="centralImport.importType === 'categories'">
+                                For Categories use: Name
+                            </small>
+
+                            <small class="input-hint" ng-if="centralImport.importType === 'devices'">
+                                For Devices use: Name, Quantity, CategoryName
+                            </small>
+
+                            <small class="input-hint" ng-if="centralImport.importType === 'phoneNumbers'">
+                                For Phone Numbers use: Number, DeviceName
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="modal-label">CSV File</label>
+
+                            <input type="file"
+                                   class="form-control modal-input"
+                                   file-model="centralImport.file"
+                                   accept=".csv" />
+
+                            <small class="input-hint">
+                                For Clients use: Name, Type, BirthDate
+                            </small>
+                        </div>
+
+                        <div class="central-import-actions">
+
+                            <button type="button"
+                                    class="btn modal-save-btn central-import-btn"
+                                    ng-click="importCentralData()">
+                                <i class="fa-solid fa-file-import"></i>
+                                Import Data
+                            </button>
+
+                            <button type="button"
+                                    class="btn modal-cancel-btn"
+                                    ng-click="openCentralImportHistoryModal()">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                View History
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="import-help-box central-import-help">
+                    <strong>CSV Format</strong>
+
+                    <div ng-if="centralImport.importType === 'clients'">
+                        <div class="import-format-line">
+                            Clients: Name, Type, BirthDate
+                        </div>
+
+                        <p>
+                            Example:
+                            <span>Ali Hassan, Individual, 2001-04-15</span>
+                        </p>
+
+                        <p>
+                            For Organization, leave BirthDate empty.
+                        </p>
+                    </div>
+
+                    <div ng-if="centralImport.importType === 'categories'">
+                        <div class="import-format-line">
+                            Categories: Name
+                        </div>
+
+                        <p>
+                            Example:
+                            <span>Gaming Laptop</span>
+                        </p>
+
+                        <p>
+                            Each row should contain one category name only.
+                        </p>
+                    </div>
+
+                    <div ng-if="centralImport.importType === 'devices'">
+                        <div class="import-format-line">
+                            Devices: Name, Quantity, CategoryName
+                        </div>
+
+                        <p>
+                            Example:
+                            <span>Dell Laptop, 10, Laptop</span>
+                        </p>
+
+                        <p>
+                            CategoryName must already exist in the Categories table.
+                        </p>
+                    </div>
+
+                    <div ng-if="centralImport.importType === 'phoneNumbers'">
+                        <div class="import-format-line">
+                            Phone Numbers: Number, DeviceName
+                        </div>
+
+                        <p>
+                            Example:
+                            <span>70111222, Dell Latitude 5420</span>
+                        </p>
+
+                        <p>
+                            DeviceName must already exist in the Devices table.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Clients Report Section -->
+            <div class="report-section clients-report-print-area" ng-show="activeReportTab === 'clients'">
+
+                <div class="report-section-header">
+                    <h2>Clients Report</h2>
+                    <p>
+                        Analyze clients by type and active reservation activity.
+                    </p>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-search-area report-filter-area no-print">
+
+                    <div class="filter-row report-filter-row">
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-user-tag filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="clientsReportFilters.clientType"
+                                    ng-change="loadClientsReport()">
+                                <option value="">All Client Types</option>
+                                <option value="1">Individual</option>
+                                <option value="2">Organization</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-circle-check filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="clientsReportFilters.reservationActivity"
+                                    ng-change="loadClientsReport()">
+                                <option value="">All Reservation Activity</option>
+                                <option value="with-active">With Active Reservation</option>
+                                <option value="without-active">Without Active Reservation</option>
+                            </select>
+                        </div>
+
+                        <button type="button"
+                                class="export-report-btn report-export-btn"
+                                ng-click="openClientsReportModal()">
+                            <span class="export-icon">
+                                <i class="fa-solid fa-file-export"></i>
+                            </span>
+
+                            <span class="export-text">
+                                Generate Report
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Print Header -->
+                <div class="print-report-header">
+                    <h2>Clients Report</h2>
+                    <p>Generated report based on the selected filters.</p>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table devices-table">
+                        <thead>
+                            <tr>
+                                <th>Client Type</th>
+                                <th>Number of Clients</th>
+                                <th>With Active Reservations</th>
+                                <th>Without Active Reservations</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr ng-repeat="row in clientsReport">
+                                <td>
+                                    <span class="category-badge">
+                                        {{ row.clientType }}
+                                    </span>
+                                </td>
+
+                                <td>{{ row.numberOfClients }}</td>
+
+                                <td>
+                                    <span class="category-badge active-reservation-badge">
+                                        {{ row.clientsWithActiveReservations }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ row.clientsWithoutActiveReservations }}
+                                </td>
+                            </tr>
+
+                            <tr ng-if="clientsReport.length === 0">
+                                <td colspan="4" class="empty-state">
+                                    No clients report data found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- Devices Report Section -->
+            <div class="report-section devices-report-print-area" ng-show="activeReportTab === 'devices'">
+
+                <div class="report-section-header">
+                    <h2>Devices & Phone Numbers Report</h2>
+                    <p>
+                        Analyze reserved and unreserved phone numbers by category and device.
+                    </p>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-search-area report-filter-area no-print">
+
+                    <div class="filter-row report-filter-row">
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-layer-group filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="devicesReportFilters.categoryId"
+                                    ng-change="loadDevicesReport()">
+                                <option value="">All Categories</option>
+                                <option ng-repeat="category in categories"
+                                        value="{{ category.id }}">
+                                    {{ category.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-laptop filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="devicesReportFilters.deviceId"
+                                    ng-change="loadDevicesReport()">
+                                <option value="">All Devices</option>
+                                <option ng-repeat="device in devices"
+                                        value="{{ device.id }}">
+                                    {{ device.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-circle-check filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="devicesReportFilters.phoneStatus"
+                                    ng-change="loadDevicesReport()">
+                                <option value="">All Phone Status</option>
+                                <option value="reserved">Reserved</option>
+                                <option value="unreserved">Unreserved</option>
+                            </select>
+                        </div>
+
+                        <button type="button"
+                                class="export-report-btn report-export-btn"
+                                ng-click="openDevicesReportModal()">
+                            <span class="export-icon">
+                                <i class="fa-solid fa-file-export"></i>
+                            </span>
+
+                            <span class="export-text">
+                                Generate Report
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Print Header -->
+                <div class="print-report-header">
+                    <h2>Devices & Phone Numbers Report</h2>
+                    <p>Generated report based on the selected filters.</p>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table devices-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Device</th>
+                                <th>Reserved Phone Numbers</th>
+                                <th>Unreserved Phone Numbers</th>
+                                <th>Total Phone Numbers</th>
+                                <th>Device Availability</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr ng-repeat="row in devicesReport">
+                                <td>
+                                    <span class="category-badge">
+                                        {{ row.categoryName }}
+                                    </span>
+                                </td>
+
+                                <td>{{ row.deviceName }}</td>
+
+                                <td>
+                                    <span class="category-badge active-reservation-badge">
+                                        {{ row.reservedPhoneNumbers }}
+                                    </span>
+                                </td>
+
+                                <td>{{ row.unreservedPhoneNumbers }}</td>
+
+                                <td>{{ row.totalPhoneNumbers }}</td>
+
+                                <td>
+                                    <span class="category-badge">
+                                        {{ row.deviceAvailability }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr ng-if="devicesReport.length === 0">
+                                <td colspan="6" class="empty-state">
+                                    No devices report data found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <!-- Reservations Report Section -->
+            <div class="report-section reservations-report-print-area" ng-show="activeReportTab === 'reservations'">
+
+                <div class="report-section-header">
+                    <h2>Reservations Report</h2>
+                    <p>
+                        Analyze reservation history using client, phone number, and status filters.
+                    </p>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-search-area report-filter-area no-print">
+
+                    <div class="filter-row report-filter-row">
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-user filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="reservationsReportFilters.clientId"
+                                    ng-change="loadReservationsReport()">
+                                <option value="">All Clients</option>
+                                <option ng-repeat="client in reportClients"
+                                        value="{{ client.id }}">
+                                    {{ client.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-phone filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="reservationsReportFilters.phoneNumberId"
+                                    ng-change="loadReservationsReport()">
+                                <option value="">All Phone Numbers</option>
+                                <option ng-repeat="phoneNumber in reportPhoneNumbers"
+                                        value="{{ phoneNumber.id }}">
+                                    {{ phoneNumber.number }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="filter-box report-filter-box">
+                            <i class="fa-solid fa-circle-check filter-icon"></i>
+
+                            <select class="stock-filter"
+                                    ng-model="reservationsReportFilters.status"
+                                    ng-change="loadReservationsReport()">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="ended">Ended</option>
+                            </select>
+                        </div>
+
+                        <button type="button"
+                                class="export-report-btn report-export-btn"
+                                ng-click="openReservationsReportModal()">
+                            <span class="export-icon">
+                                <i class="fa-solid fa-file-export"></i>
+                            </span>
+
+                            <span class="export-text">
+                                Generate Report
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Print Header -->
+                <div class="print-report-header">
+                    <h2>Reservations Report</h2>
+                    <p>Generated report based on the selected filters.</p>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table devices-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Phone Number</th>
+                                <th>BED</th>
+                                <th>EED</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr ng-repeat="reservation in reservationsReport">
+                                <td>{{ reservation.id }}</td>
+
+                                <td>
+                                    <i class="fa-solid fa-user reservation-inline-icon"></i>
+                                    {{ reservation.clientName }}
+                                </td>
+
+                                <td>
+                                    <span class="category-badge">
+                                        {{ reservation.phoneNumberValue }}
+                                    </span>
+                                </td>
+
+                                <td>{{ reservation.bedText }}</td>
+
+                                <td>
+                                    <span class="category-badge"
+                                          ng-class="{ 'active-reservation-badge': reservation.isActive }">
+                                        {{ reservation.eedText }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="category-badge"
+                                          ng-class="{ 'active-reservation-badge': reservation.isActive }">
+                                        {{ reservation.statusText }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr ng-if="reservationsReport.length === 0">
+                                <td colspan="6" class="empty-state">
+                                    No reservations report data found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script type="text/ng-template" id="generateClientsReportModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Generate Clients Report</h3>
+            <p class="modal-subtitle">
+                Choose the report format you want to export.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="report-format-grid">
+
+                <button type="button"
+                        class="report-format-card"
+                        ng-click="chooseFormat('word')">
+                    <div class="report-format-icon word-format">
+                        <i class="fa-solid fa-file-word"></i>
+                    </div>
+
+                    <div>
+                        <h4>Word Document</h4>
+                        <p>Download the clients report as a Word file.</p>
+                    </div>
+                </button>
+
+                <button type="button"
+                        class="report-format-card"
+                        ng-click="chooseFormat('pdf')">
+                    <div class="report-format-icon pdf-format">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+
+                    <div>
+                        <h4>PDF Document</h4>
+                        <p>Open print preview and save as PDF.</p>
+                    </div>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="generateDevicesReportModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Generate Devices Report</h3>
+            <p class="modal-subtitle">
+                Choose the report format you want to export.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="report-format-grid">
+
+                <button type="button"
+                        class="report-format-card"
+                        ng-click="chooseFormat('word')">
+                    <div class="report-format-icon word-format">
+                        <i class="fa-solid fa-file-word"></i>
+                    </div>
+
+                    <div>
+                        <h4>Word Document</h4>
+                        <p>Download the devices report as a Word file.</p>
+                    </div>
+                </button>
+
+                <button type="button"
+                        class="report-format-card"
+                        ng-click="chooseFormat('pdf')">
+                    <div class="report-format-icon pdf-format">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+
+                    <div>
+                        <h4>PDF Document</h4>
+                        <p>Open print preview and save as PDF.</p>
+                    </div>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="generateReservationsReportModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Generate Reservations Report</h3>
+            <p class="modal-subtitle">
+                Choose the report format you want to export.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body">
+
+            <div class="report-format-grid">
+
+                <button type="button"
+                        class="report-format-card"
+                        ng-click="chooseFormat('word')">
+                    <div class="report-format-icon word-format">
+                        <i class="fa-solid fa-file-word"></i>
+                    </div>
+
+                    <div>
+                        <h4>Word Document</h4>
+                        <p>Download the reservations report as a Word file.</p>
+                    </div>
+                </button>
+
+                <button type="button"
+                        class="report-format-card"
+                        ng-click="chooseFormat('pdf')">
+                    <div class="report-format-icon pdf-format">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+
+                    <div>
+                        <h4>PDF Document</h4>
+                        <p>Open print preview and save as PDF.</p>
+                    </div>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="centralImportResultModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Import Result</h3>
+            <p class="modal-subtitle">
+                Summary and row validation details for the uploaded file.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body import-result-body">
+
+            <div class="import-result-summary">
+
+                <div class="import-result-card">
+                    <span>Total Rows</span>
+                    <strong>{{ importResult.totalRows }}</strong>
+                </div>
+
+                <div class="import-result-card imported-result-card">
+                    <span>Imported</span>
+                    <strong>{{ importResult.importedRows }}</strong>
+                </div>
+
+                <div class="import-result-card skipped-result-card">
+                    <span>Skipped</span>
+                    <strong>{{ importResult.skippedRows }}</strong>
+                </div>
+
+            </div>
+
+            <div class="table-responsive import-result-table-wrapper">
+                <table class="table devices-table import-result-table">
+                    <thead>
+                        <tr>
+                            <th>Row</th>
+                            <th>Name / Value</th>
+                            <th>Status</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="row in importResult.rowResults">
+                            <td>{{ row.rowNumber }}</td>
+
+                            <td>{{ row.name || row.number || row.recordName || '-' }}</td>
+
+                            <td>
+                                <span class="import-row-badge"
+                                      ng-class="{
+                                          'imported-row-badge': row.status === 'Imported',
+                                          'skipped-row-badge': row.status === 'Skipped'
+                                      }">
+                                    {{ row.status }}
+                                </span>
+                            </td>
+
+                            <td>{{ row.message }}</td>
+                        </tr>
+
+                        <tr ng-if="importResult.rowResults.length === 0">
+                            <td colspan="4" class="empty-state">
+                                No import result details found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer">
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Close
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="centralImportHistoryModal.html">
+        <div class="modal-header custom-modal-header">
+            <h3 class="modal-title">Import History</h3>
+            <p class="modal-subtitle">
+                View previous imports and row validation results.
+            </p>
+        </div>
+
+        <div class="modal-body custom-modal-body import-history-body">
+
+            <div class="modal-error" ng-if="errorMessage">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errorMessage }}
+            </div>
+
+            <div class="modal-success" ng-if="successMessage">
+                <i class="fa-solid fa-circle-check"></i>
+                {{ successMessage }}
+            </div>
+
+            <div class="import-history-layout">
+
+                <div class="import-history-list">
+
+                    <div class="import-history-card"
+                         ng-repeat="history in importHistories"
+                         ng-click="selectHistory(history)"
+                         ng-class="{ 'active-history-card': selectedHistory && selectedHistory.id === history.id }">
+
+                        <div class="import-history-top">
+                            <strong>{{ history.fileName }}</strong>
+
+                            <span class="import-status-badge"
+                                  ng-class="{
+                                      'import-status-success': history.status === 'Completed',
+                                      'import-status-warning': history.status === 'Completed with Errors',
+                                      'import-status-error': history.status === 'Failed'
+                                  }">
+                                {{ history.status }}
+                            </span>
+                        </div>
+
+                        <div class="import-history-meta">
+                            <span>{{ history.importType }}</span>
+                            <span>{{ history.importedAtText }}</span>
+                        </div>
+
+                        <div class="import-history-stats">
+                            <span>Total: {{ history.totalRows }}</span>
+                            <span>Imported: {{ history.importedRows }}</span>
+                            <span>Skipped: {{ history.skippedRows }}</span>
+                        </div>
+
+                    </div>
+
+                    <div class="empty-state" ng-if="importHistories.length === 0">
+                        No import history found.
+                    </div>
+
+                </div>
+
+                <div class="import-history-details">
+
+                    <div class="import-details-header">
+                        <h4>Row Details</h4>
+                        <p ng-if="selectedHistory">
+                            {{ selectedHistory.fileName }}
+                        </p>
+                        <p ng-if="!selectedHistory">
+                            Select an import to view details.
+                        </p>
+                    </div>
+
+                    <div class="table-responsive" ng-if="selectedHistory">
+                        <table class="table devices-table import-details-table">
+                            <thead>
+                                <tr>
+                                    <th>Row</th>
+                                    <th>Name / Value</th>
+                                    <th>Status</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr ng-repeat="row in selectedRows">
+                                    <td>{{ row.rowNumber }}</td>
+
+                                    <td>{{ row.recordName || '-' }}</td>
+
+                                    <td>
+                                        <span class="import-row-badge"
+                                              ng-class="{
+                                                  'imported-row-badge': row.status === 'Imported',
+                                                  'skipped-row-badge': row.status === 'Skipped'
+                                              }">
+                                            {{ row.status }}
+                                        </span>
+                                    </td>
+
+                                    <td>{{ row.message }}</td>
+                                </tr>
+
+                                <tr ng-if="selectedRows.length === 0">
+                                    <td colspan="4" class="empty-state">
+                                        No row details found.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer custom-modal-footer import-history-footer">
+
+            <button type="button"
+                    class="btn clear-history-btn"
+                    ng-click="clearHistory()"
+                    ng-disabled="importHistories.length === 0">
+                <i class="fa-solid fa-trash-can"></i> Clear History
+            </button>
+
+            <button type="button"
+                    class="btn modal-cancel-btn"
+                    ng-click="cancel()">
+                <i class="fa-solid fa-xmark"></i> Close
+            </button>
+
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="clearCentralImportHistoryConfirmModal.html">
+        <div class="delete-modal">
+
+            <div class="delete-icon">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+
+            <h3 class="delete-title">Clear Import History?</h3>
+
+            <p class="delete-message">
+                Are you sure you want to clear all import history?
+            </p>
+
+            <p class="delete-warning">
+                This will delete all import logs and row details.
+            </p>
+
+            <div class="delete-actions">
+                <button type="button"
+                        class="btn delete-cancel-btn"
+                        ng-click="cancel()">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        class="btn delete-confirm-btn"
+                        ng-click="confirmClear()">
+                    <i class="fa-solid fa-trash-can"></i>
+                    Clear
+                </button>
+            </div>
+
+        </div>
+    </script>
+</div>
